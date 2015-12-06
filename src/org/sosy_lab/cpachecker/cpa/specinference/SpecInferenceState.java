@@ -116,4 +116,12 @@ public class SpecInferenceState implements AbstractState, Graphable {
   public String getHandle() {
     return handle;
   }
+
+  public Automaton getAutomaton() {
+    return automaton;
+  }
+
+  public boolean isEmpty() {
+    return automaton.getRoot() == automaton.getSink();
+  }
 }

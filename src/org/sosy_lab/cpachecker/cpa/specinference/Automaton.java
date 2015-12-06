@@ -212,4 +212,19 @@ public class Automaton {
     return true;
   }
 
+  public int getRoot() {
+    return root;
+  }
+
+  public int getSink() {
+    return sink;
+  }
+
+  public AutomatonEdge getEdge(int root) {
+    return edges.get(root).get(0);
+  }
+
+  public int getNextId() {
+    return nextId;
+  }
 }

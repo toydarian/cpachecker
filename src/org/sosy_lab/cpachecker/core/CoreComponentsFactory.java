@@ -54,6 +54,7 @@ import org.sosy_lab.cpachecker.core.algorithm.pcc.ProofCheckAlgorithm;
 import org.sosy_lab.cpachecker.core.algorithm.pcc.ResultCheckAlgorithm;
 import org.sosy_lab.cpachecker.core.algorithm.precondition.PreconditionRefinerAlgorithm;
 import org.sosy_lab.cpachecker.core.algorithm.testgen.TestGenAlgorithm;
+import org.sosy_lab.cpachecker.core.algorithm.SpecInferenceAlgorithm;
 import org.sosy_lab.cpachecker.core.interfaces.AlgorithmIterationListener;
 import org.sosy_lab.cpachecker.core.interfaces.ConfigurableProgramAnalysis;
 import org.sosy_lab.cpachecker.core.interfaces.StatisticsProvider;
@@ -151,6 +152,9 @@ public class CoreComponentsFactory {
   @Option(secure=true, name="restartAlgorithmWithARGReplay",
       description = "run a sequence of analysis, where the previous ARG is inserted into the current ARGReplayCPA.")
   private boolean useRestartAlgorithmWithARGReplay = false;
+
+  @Option(secure = true, name = "algorithm.extractSpecification", description = "Extract a specification by using the SpecInference CPA.")
+  private boolean useSpecInference = false;
 
   private final Configuration config;
   private final LogManager logger;
@@ -261,6 +265,10 @@ public class CoreComponentsFactory {
 
       if (usePreconditionRefinementAlgorithm) {
         algorithm = new PreconditionRefinerAlgorithm(algorithm, cpa, cfa, config, logger, shutdownNotifier);
+      }
+
+      if (useSpecInference) {
+        algorithm = SpecInferenceAlgorithm.create(cpa, logger, config, shutdownNotifier);
       }
     }
 

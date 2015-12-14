@@ -22,13 +22,14 @@ import org.sosy_lab.cpachecker.exceptions.CPAException;
 /**
  * This is a wrapper around the {@link CPAAlgorithm}.
  */
+@Options(prefix = "specInference")
 public class SpecInferenceAlgorithm implements Algorithm {
 
   private static final String PREFIX = "State_";
   private final CPAAlgorithm cpaAlg;
   private final LogManager logger;
 
-  @Options(prefix = "specInference")
+  @Options
   public static class SpecInferenceAlgorithmFactory {
 
     private final ConfigurableProgramAnalysis cpa;

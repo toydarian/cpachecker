@@ -23,25 +23,58 @@
  */
 package org.sosy_lab.cpachecker.cpa.specinference;
 
-import org.sosy_lab.cpachecker.cfa.ast.*;
-import org.sosy_lab.cpachecker.cfa.model.*;
+import static com.google.common.collect.FluentIterable.from;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.sosy_lab.common.configuration.Configuration;
+import org.sosy_lab.common.configuration.InvalidConfigurationException;
+import org.sosy_lab.common.configuration.Option;
+import org.sosy_lab.common.configuration.Options;
+import org.sosy_lab.cpachecker.cfa.ast.AAssignment;
+import org.sosy_lab.cpachecker.cfa.ast.ADeclaration;
+import org.sosy_lab.cpachecker.cfa.ast.AExpression;
+import org.sosy_lab.cpachecker.cfa.ast.AExpressionAssignmentStatement;
+import org.sosy_lab.cpachecker.cfa.ast.AExpressionStatement;
+import org.sosy_lab.cpachecker.cfa.ast.AFunctionCall;
+import org.sosy_lab.cpachecker.cfa.ast.AFunctionCallAssignmentStatement;
+import org.sosy_lab.cpachecker.cfa.ast.AFunctionCallStatement;
+import org.sosy_lab.cpachecker.cfa.ast.AIdExpression;
+import org.sosy_lab.cpachecker.cfa.ast.AParameterDeclaration;
+import org.sosy_lab.cpachecker.cfa.ast.ASimpleDeclaration;
+import org.sosy_lab.cpachecker.cfa.ast.AStatement;
+import org.sosy_lab.cpachecker.cfa.model.ADeclarationEdge;
+import org.sosy_lab.cpachecker.cfa.model.AReturnStatementEdge;
+import org.sosy_lab.cpachecker.cfa.model.AStatementEdge;
+import org.sosy_lab.cpachecker.cfa.model.AssumeEdge;
+import org.sosy_lab.cpachecker.cfa.model.CFAEdge;
+import org.sosy_lab.cpachecker.cfa.model.CFANode;
+import org.sosy_lab.cpachecker.cfa.model.FunctionCallEdge;
+import org.sosy_lab.cpachecker.cfa.model.FunctionReturnEdge;
+import org.sosy_lab.cpachecker.cfa.model.FunctionSummaryEdge;
 import org.sosy_lab.cpachecker.core.defaults.ForwardingTransferRelation;
 import org.sosy_lab.cpachecker.core.interfaces.AbstractState;
 import org.sosy_lab.cpachecker.core.interfaces.Precision;
 import org.sosy_lab.cpachecker.cpa.livevar.DeclarationCollectingVisitor;
 import org.sosy_lab.cpachecker.exceptions.CPATransferException;
 
-import java.util.*;
-
-import static com.google.common.collect.FluentIterable.from;
-
-
+@Options(prefix="cpa.specinference")
 public class SpecInferenceTransferRelation
-        extends ForwardingTransferRelation<SpecInferenceState, SpecInferenceState, Precision> {
+    extends ForwardingTransferRelation<SpecInferenceState, SpecInferenceState, Precision> {
 
+  @Option(secure = true, description = "The string a function call has to contain in order to be considered as a function where to start tracking a handle.")
+  private String searchStart = "asdf";
+  @Option(secure = true, description = "The string a function call has to contain in order to be considered as a function where to stop tracking a handle.")
+  private String searchStop = "asdf";
 
-  private static String SEARCH_START = "open";
-  private static String SEARCH_END = "close";
+  public SpecInferenceTransferRelation(Configuration config)
+      throws InvalidConfigurationException {
+    config.inject(this, SpecInferenceTransferRelation.class);
+  }
 
   @Override
   public Collection<? extends AbstractState> strengthen(AbstractState pState,
@@ -64,7 +97,7 @@ public class SpecInferenceTransferRelation
         return new SpecInferenceState().startTracking(state.getHandle(), "MATCH {$?} -> ASSUME {" + cfaEdge.getCode() + "} ");
 
       } else if (containsHandle(handleExpression(expression))) {
-        return state.addAutomatonState("MATCH {if($?)} -> ASSUME {" + cfaEdge.getCode() + "} ");
+        return state.addAutomatonState("MATCH {$?} -> ASSUME {" + cfaEdge.getCode() + "} ");
       }
     }
 
@@ -86,7 +119,7 @@ public class SpecInferenceTransferRelation
       // if handle is not contained in parameters, nothing to do
       if (containsHandle(vars)) {
         String s = "MATCH {" + cfaEdge.getCode() + "} ->";
-        if (calledFunctionName.contains(SEARCH_END)) {
+        if (calledFunctionName.contains(searchStop)) {
           return state.stopTracking(s);
         } else {
           return state.addAutomatonState(s);
@@ -146,7 +179,7 @@ public class SpecInferenceTransferRelation
         if (containsHandle(handleExpression(s.getFunctionCallExpression().getParameterExpressions()))) {
           String funcName = ((AIdExpression) s.getFunctionCallExpression().getFunctionNameExpression()).getName();
 
-          if (funcName.contains(SEARCH_END)) {
+          if (funcName.contains(searchStop)) {
             return state.stopTracking("MATCH {" + pCfaEdge.getCode() + "} ->");
           }
 
@@ -211,14 +244,14 @@ public class SpecInferenceTransferRelation
       if (state.getHandle() != null) {
         if (containsHandle(getParameters(funcStmt.getFunctionCallExpression().getParameterExpressions()))) {
           String s = "MATCH { $? = " + funcStmt.getRightHandSide().toString() + "} ->";
-          if (funcName.contains(SEARCH_END)) {
+          if (funcName.contains(searchStop)) {
             succ = state.stopTracking(s);
           } else {
             succ = state.addAutomatonState(s);
           }
         }
       } else {
-        if (funcName.contains(SEARCH_START)) {
+        if (funcName.contains(searchStart)) {
           succ = state.startTracking(left.getName(), "MATCH {" + as.toString() + "} -> ");
         }
       }

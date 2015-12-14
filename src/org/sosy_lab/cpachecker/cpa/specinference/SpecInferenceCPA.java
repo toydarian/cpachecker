@@ -26,6 +26,7 @@ package org.sosy_lab.cpachecker.cpa.specinference;
 import org.sosy_lab.common.ShutdownNotifier;
 import org.sosy_lab.common.configuration.Configuration;
 import org.sosy_lab.common.configuration.InvalidConfigurationException;
+import org.sosy_lab.common.configuration.Options;
 import org.sosy_lab.common.log.LogManager;
 import org.sosy_lab.cpachecker.cfa.CFA;
 import org.sosy_lab.cpachecker.cfa.model.CFANode;
@@ -45,7 +46,7 @@ import org.sosy_lab.cpachecker.core.interfaces.StateSpacePartition;
 import org.sosy_lab.cpachecker.core.interfaces.StopOperator;
 import org.sosy_lab.cpachecker.core.interfaces.TransferRelation;
 
-
+@Options
 public class SpecInferenceCPA implements ConfigurableProgramAnalysis {
 
   private final AutomatonDomain domain;
@@ -62,9 +63,11 @@ public class SpecInferenceCPA implements ConfigurableProgramAnalysis {
                            final LogManager pLogger,
                            final ShutdownNotifier pShutdownNotifier,
                            final CFA cfa) throws InvalidConfigurationException {
+    pConfig.inject(this, SpecInferenceCPA.class);
+
     logger = pLogger;
     domain = new AutomatonDomain();
-    transfer = new SpecInferenceTransferRelation();
+    transfer = new SpecInferenceTransferRelation(pConfig);
     merge = new MergeJoinOperator(domain);
     stop = new StopJoinOperator(domain);
   }

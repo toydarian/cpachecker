@@ -146,7 +146,7 @@ public class SpecInferenceAlgorithm implements Algorithm {
       if (current.isCovered()) {
 
         sb.append("DUMMY \n");
-        sb.append("  MATCH{$?} -> GOTO ");
+        sb.append("  MATCH {$?} -> GOTO ");
         sb.append(PREFIX);
         // MAGIC - I assume that a node where the ARG splits has only one parent
         sb.append(current.getCoveringState().getParents().iterator().next().getStateId());
@@ -161,7 +161,7 @@ public class SpecInferenceAlgorithm implements Algorithm {
         sb.append(PREFIX);
         sb.append(current.getStateId());
         sb.append(" :\n");
-        sb.append("  MATCH{$?} -> GOTO ");
+        sb.append("  MATCH {$?} -> GOTO ");
         sb.append(PREFIX);
         sb.append(current.getStateId());
         sb.append(" ;\n");

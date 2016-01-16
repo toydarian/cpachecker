@@ -95,10 +95,10 @@ public class SpecInferenceTransferRelation
 
       if (pred.isLoopStart()) {
 
-        return new SpecInferenceState().startTracking(state.getHandle(), "MATCH {$?} -> ASSUME {" + cfaEdge.getCode() + "} ");
+        return new SpecInferenceState().startTracking(state.getHandle(), "MATCH ASSUME -> ASSUME {" + cfaEdge.getCode() + "} ");
 
       } else if (containsHandle(handleExpression(expression))) {
-        return state.addAutomatonState("MATCH {$?} -> ASSUME {" + cfaEdge.getCode() + "} ");
+        return state.addAutomatonState("MATCH ASSUME -> ASSUME {" + cfaEdge.getCode() + "} ");
       }
     }
 

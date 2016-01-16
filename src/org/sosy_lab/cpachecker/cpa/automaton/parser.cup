@@ -355,6 +355,8 @@ Bool      ::= TRUE  {: RESULT = AutomatonBoolExpr.TRUE; :}
               {: RESULT = new AutomatonBoolExpr.MatchLabelRegEx(expr.toString()); :}
             | MATCH ASSERT
               {: RESULT = new AutomatonBoolExpr.MatchJavaAssert(); :}
+            | MATCH ASSUME
+              {: RESULT = AutomatonBoolExpr.MatchAssumeEdge.INSTANCE; :}
             | MATCH EXIT
               {: RESULT = new AutomatonBoolExpr.MatchProgramExit(); :}
 /*next statement is deprecated*/ 

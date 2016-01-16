@@ -33,7 +33,6 @@ import java.util.Set;
 
 import org.sosy_lab.common.configuration.Configuration;
 import org.sosy_lab.common.configuration.InvalidConfigurationException;
-import org.sosy_lab.common.configuration.Option;
 import org.sosy_lab.common.configuration.Options;
 import org.sosy_lab.cpachecker.cfa.ast.AAssignment;
 import org.sosy_lab.cpachecker.cfa.ast.ADeclaration;
@@ -66,10 +65,12 @@ import org.sosy_lab.cpachecker.exceptions.CPATransferException;
 public class SpecInferenceTransferRelation
     extends ForwardingTransferRelation<SpecInferenceState, SpecInferenceState, Precision> {
 
-  @Option(secure = true, description = "The string a function call has to contain in order to be considered as a function where to start tracking a handle.")
-  private String searchStart = "asdf";
-  @Option(secure = true, description = "The string a function call has to contain in order to be considered as a function where to stop tracking a handle.")
-  private String searchStop = "asdf";
+  // TODO make those options work!
+
+  //@Option(secure = true, description = "The string a function call has to contain in order to be considered as a function where to start tracking a handle.")
+  private String searchStart = "open";
+  //@Option(secure = true, description = "The string a function call has to contain in order to be considered as a function where to stop tracking a handle.")
+  private String searchStop = "close";
 
   public SpecInferenceTransferRelation(Configuration config)
       throws InvalidConfigurationException {

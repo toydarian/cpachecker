@@ -104,7 +104,11 @@ public class SpecInferenceState implements AbstractState, Graphable {
    */
   public boolean isLessOrEqual(SpecInferenceState other) {
 
-    return automaton.toString().equals(other.automaton.toString());
+    if (handle == null) {
+      return true;
+    } else {
+      return automaton.toString().equals(other.automaton.toString());
+    }
 
   }
 

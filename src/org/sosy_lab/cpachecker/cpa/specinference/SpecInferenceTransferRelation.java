@@ -227,7 +227,13 @@ public class SpecInferenceTransferRelation
   }
 
   private SpecInferenceState handleAssignments(AAssignment as) throws CPATransferException {
-    AIdExpression left = (AIdExpression) as.getLeftHandSide();
+
+    AIdExpression left;
+    if (as.getLeftHandSide() instanceof AIdExpression) {
+      left = (AIdExpression)as.getLeftHandSide();
+    } else {
+      return state;
+    }
 
     SpecInferenceState succ = null;
 

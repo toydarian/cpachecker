@@ -1,5 +1,7 @@
 package org.sosy_lab.cpachecker.core.algorithm;
 
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -7,8 +9,12 @@ import javax.annotation.Nullable;
 
 import org.sosy_lab.common.ShutdownNotifier;
 import org.sosy_lab.common.configuration.Configuration;
+import org.sosy_lab.common.configuration.FileOption;
 import org.sosy_lab.common.configuration.InvalidConfigurationException;
+import org.sosy_lab.common.configuration.Option;
 import org.sosy_lab.common.configuration.Options;
+import org.sosy_lab.common.io.Path;
+import org.sosy_lab.common.io.Paths;
 import org.sosy_lab.common.log.LogManager;
 import org.sosy_lab.cpachecker.core.interfaces.AbstractState;
 import org.sosy_lab.cpachecker.core.interfaces.AlgorithmIterationListener;
@@ -28,6 +34,11 @@ public class SpecInferenceAlgorithm implements Algorithm {
   private static final String PREFIX = "State_";
   private final CPAAlgorithm cpaAlg;
   private final LogManager logger;
+
+  @Option(secure=true, name="specification.file",
+      description="Export the inferred specification as an automaton.")
+  @FileOption(FileOption.Type.OUTPUT_FILE)
+  private Path exportSpcFile = Paths.get("output/specification.spc"); //FIXME directory hardcoded
 
   @Options
   public static class SpecInferenceAlgorithmFactory {
@@ -98,8 +109,14 @@ public class SpecInferenceAlgorithm implements Algorithm {
 
     ARGState first = (ARGState)reachedSet.getFirstState();
 
-    // TODO write the automaton to file
-    System.out.println(assembleAutomatonString(assembleAutomaton(first), getNextRelevant(first).getStateId()));
+    try {
+      PrintWriter writer = new PrintWriter(exportSpcFile.getAbsolutePath());
+      writer.println(assembleAutomatonString(assembleAutomaton(first), getNextRelevant(first).getStateId()));
+      writer.close();
+    } catch (FileNotFoundException pE) {
+      pE.printStackTrace();
+    }
+    //System.out.println(assembleAutomatonString(assembleAutomaton(first), getNextRelevant(first).getStateId()));
 
     return retVal;
   }

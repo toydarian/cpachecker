@@ -93,13 +93,13 @@ public class SpecInferenceTransferRelation
     if (state.getHandle() != null) {
       CFANode pred = cfaEdge.getPredecessor();
 
-      if (pred.isLoopStart()) {
+//      if (pred.isLoopStart()) {
 
         return new SpecInferenceState().startTracking(state.getHandle(), "MATCH ASSUME -> ASSUME {" + cfaEdge.getCode() + "} ");
 
-      } else if (containsHandle(handleExpression(expression))) {
-        return state.addAutomatonState("MATCH ASSUME -> ASSUME {" + cfaEdge.getCode() + "} ");
-      }
+//      } else if (containsHandle(handleExpression(expression))) {
+//        return state.addAutomatonState("MATCH ASSUME -> ASSUME {" + cfaEdge.getCode() + "} ");
+//      }
     }
 
     return state;

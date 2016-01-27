@@ -182,6 +182,8 @@ public class SpecInferenceTransferRelation
 
           if (funcName.contains(searchStop)) {
             return state.stopTracking("MATCH {" + pCfaEdge.getCode() + "} ->");
+          } else {
+            return state.addAutomatonState("MATCH {" + pCfaEdge.getCode() + "} ->");
           }
 
         }

@@ -31,10 +31,10 @@ import org.sosy_lab.common.log.LogManager;
 import org.sosy_lab.cpachecker.cfa.CFA;
 import org.sosy_lab.cpachecker.cfa.model.CFANode;
 import org.sosy_lab.cpachecker.core.defaults.AutomaticCPAFactory;
-import org.sosy_lab.cpachecker.core.defaults.MergeJoinOperator;
+import org.sosy_lab.cpachecker.core.defaults.MergeSepOperator;
 import org.sosy_lab.cpachecker.core.defaults.SingletonPrecision;
 import org.sosy_lab.cpachecker.core.defaults.StaticPrecisionAdjustment;
-import org.sosy_lab.cpachecker.core.defaults.StopJoinOperator;
+import org.sosy_lab.cpachecker.core.defaults.StopSepOperator;
 import org.sosy_lab.cpachecker.core.interfaces.AbstractDomain;
 import org.sosy_lab.cpachecker.core.interfaces.AbstractState;
 import org.sosy_lab.cpachecker.core.interfaces.CPAFactory;
@@ -68,8 +68,8 @@ public class SpecInferenceCPA implements ConfigurableProgramAnalysis {
     logger = pLogger;
     domain = new AutomatonDomain();
     transfer = new SpecInferenceTransferRelation(pConfig);
-    merge = new MergeJoinOperator(domain);
-    stop = new StopJoinOperator(domain);
+    merge = new MergeSepOperator();
+    stop = new StopSepOperator(domain);
   }
 
   @Override

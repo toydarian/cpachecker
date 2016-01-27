@@ -104,8 +104,10 @@ public class SpecInferenceState implements AbstractState, Graphable {
    */
   public boolean isLessOrEqual(SpecInferenceState other) {
 
+    // only merge on exact matches (loops) No merges for ifs (yet)
+    // may introduce bugs, if there is a loop at a point where the handle is unknown
     if (handle == null) {
-      return true;
+      return false;
     } else {
       return automaton.toString().equals(other.automaton.toString());
     }

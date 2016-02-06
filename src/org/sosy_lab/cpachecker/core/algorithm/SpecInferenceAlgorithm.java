@@ -307,7 +307,7 @@ public class SpecInferenceAlgorithm implements Algorithm {
      * So we only search the first few lines.
      */
     boolean alternativeInitStatePresent = false;
-    for (int i = 0; i < 15; i++) {
+    for (int i = 0; i < Math.min(15, aut.size() - 1); i++) {
       if (aut.get(i).contains(PREFIX + initState + "_x")) {
         alternativeInitStatePresent = true;
         break;

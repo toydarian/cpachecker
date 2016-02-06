@@ -128,8 +128,7 @@ public class SpecInferenceAlgorithm implements Algorithm {
     StringBuilder sb;
     SpecInferenceState curState = getSpecInfState(root);
     ARGState current = curState.isEmpty() ? getNextRelevant(root) : root;
-    int currSink = curState.getAutomaton().getSink();
-    curState = getSpecInfState(current);
+    int currSink;
 
     // to save memory and execution time, we do not do recursion if there is only one child
     while (current.getChildren().size() == 1) {
@@ -192,16 +191,19 @@ public class SpecInferenceAlgorithm implements Algorithm {
     } else if (current.getChildren().size() > 1) {
 
       /* Find out if "if". If "if", insert state, so last state does not get lost. */
-      // FIXME: I try to find out if thingy is loop start. How can it be done nicer?
-      boolean addSplitState = !current.getEdgeToChild(current.getChildren().iterator().next()).getPredecessor().isLoopStart();
-      if (addSplitState) {
+      // FIXME: I try to find out if thingy is loop start. How can it be done nicer? Maybe coverage?
+      boolean isIfStatement = !current.getEdgeToChild(current.getChildren().iterator().next()).getPredecessor().isLoopStart();
+      if (isIfStatement) {
+        curState = getSpecInfState(current);
+        currSink = curState.getAutomaton().getSink();
+
         sb.append("STATE USEFIRST ");
         sb.append(PREFIX);
         sb.append(current.getStateId());
         sb.append("_x :\n");
 
         sb.append("  ");
-        sb.append(curState.getAutomaton().getEdge(currSink).getStatement());
+        sb.append(curState.getAutomaton().getEdge(currSink - 1).getStatement());
         sb.append(" GOTO ");
         sb.append(PREFIX);
         sb.append(current.getStateId());

@@ -128,6 +128,8 @@ public class SpecInferenceAlgorithm implements Algorithm {
     StringBuilder sb;
     SpecInferenceState curState = getSpecInfState(root);
     ARGState current = curState.isEmpty() ? getNextRelevant(root) : root;
+    int currSink = curState.getAutomaton().getSink();
+    curState = getSpecInfState(current);
 
     // to save memory and execution time, we do not do recursion if there is only one child
     while (current.getChildren().size() == 1) {
@@ -135,7 +137,7 @@ public class SpecInferenceAlgorithm implements Algorithm {
 
       ARGState next = getNextRelevant(current);
       curState = getSpecInfState(current);
-      int currSink = curState.getAutomaton().getSink();
+      currSink = curState.getAutomaton().getSink();
 
       // generate state in output automaton
       sb.append("STATE USEFIRST ");
@@ -188,6 +190,26 @@ public class SpecInferenceAlgorithm implements Algorithm {
       retList.add(sb.toString());
 
     } else if (current.getChildren().size() > 1) {
+
+      /* Find out if "if". If "if", insert state, so last state does not get lost. */
+      // FIXME: I try to find out if thingy is loop start. How can it be done nicer?
+      boolean addSplitState = !current.getEdgeToChild(current.getChildren().iterator().next()).getPredecessor().isLoopStart();
+      if (addSplitState) {
+        sb.append("STATE USEFIRST ");
+        sb.append(PREFIX);
+        sb.append(current.getStateId());
+        sb.append("_x :\n");
+
+        sb.append("  ");
+        sb.append(curState.getAutomaton().getEdge(currSink).getStatement());
+        sb.append(" GOTO ");
+        sb.append(PREFIX);
+        sb.append(current.getStateId());
+        sb.append(" ;\n\n");
+
+        retList.add(sb.toString());
+        sb = new StringBuilder();
+      }
 
       retList.add("MARKER");
       int marker = retList.size() - 1;
@@ -277,8 +299,26 @@ public class SpecInferenceAlgorithm implements Algorithm {
 
     sb.append("OBSERVER AUTOMATON AutomatonName\n\n");
     sb.append("INITIAL STATE ");
+
+    /*
+     * See if we find State_<N>_x. If we do, this is probably the initial state.
+     *
+     * If it is there, it will probably be somewhere at the starting.
+     * So we only search the first few lines.
+     */
+    boolean alternativeInitStatePresent = false;
+    for (int i = 0; i < 15; i++) {
+      if (aut.get(i).contains(PREFIX + initState + "_x")) {
+        alternativeInitStatePresent = true;
+        break;
+      }
+    }
+
     sb.append(PREFIX);
     sb.append(initState);
+    if(alternativeInitStatePresent) {
+      sb.append("_x");
+    }
     sb.append(" ;\n\n");
 
     for (String s : aut) {

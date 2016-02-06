@@ -129,10 +129,12 @@ public class SpecInferenceAlgorithm implements Algorithm {
     SpecInferenceState curState = getSpecInfState(root);
     ARGState current = curState.isEmpty() ? getNextRelevant(root) : root;
     int currSink;
+    boolean didLoopsRuns = false;
 
     // to save memory and execution time, we do not do recursion if there is only one child
     while (current.getChildren().size() == 1) {
       sb = new StringBuilder();
+      didLoopsRuns = true;
 
       ARGState next = getNextRelevant(current);
       curState = getSpecInfState(current);
@@ -190,10 +192,13 @@ public class SpecInferenceAlgorithm implements Algorithm {
 
     } else if (current.getChildren().size() > 1) {
 
-      /* Find out if "if". If "if", insert state, so last state does not get lost. */
+      /*
+       * Find out if "if". If "if", insert state, so last state does not get lost.
+       * If the while loop has been entered, the state is already present.
+       */
       // FIXME: I try to find out if thingy is loop start. How can it be done nicer? Maybe coverage?
       boolean isIfStatement = !current.getEdgeToChild(current.getChildren().iterator().next()).getPredecessor().isLoopStart();
-      if (isIfStatement) {
+      if (isIfStatement && !didLoopsRuns) {
         curState = getSpecInfState(current);
         currSink = curState.getAutomaton().getSink();
 

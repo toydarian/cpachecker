@@ -252,7 +252,7 @@ public class SpecInferenceTransferRelation
 
       if (state.getHandle() != null) {
         if (containsHandle(getParameters(funcStmt.getFunctionCallExpression().getParameterExpressions()))) {
-          String s = "MATCH { $? = " + funcStmt.getRightHandSide().toString() + "} ->";
+          String s = "MATCH { " + funcStmt.getLeftHandSide().toString() + " = " + funcStmt.getRightHandSide().toString() + "} ->";
           if (funcName.contains(searchStop)) {
             succ = state.stopTracking(s);
           } else {

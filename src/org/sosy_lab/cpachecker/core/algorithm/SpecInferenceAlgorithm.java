@@ -111,7 +111,9 @@ public class SpecInferenceAlgorithm implements Algorithm {
 
     try {
       PrintWriter writer = new PrintWriter(exportSpcFile.getAbsolutePath());
-      writer.println(assembleAutomatonString(assembleAutomaton(first), getNextRelevant(first).getStateId()));
+      String tmp = (assembleAutomatonString(assembleAutomaton(first), getNextRelevant(first).getStateId()));
+      System.out.println(tmp);
+      writer.write(tmp);
       writer.close();
     } catch (FileNotFoundException pE) {
       pE.printStackTrace();
@@ -128,13 +130,12 @@ public class SpecInferenceAlgorithm implements Algorithm {
     StringBuilder sb;
     SpecInferenceState curState = getSpecInfState(root);
     ARGState current = curState.isEmpty() ? getNextRelevant(root) : root;
+    SpecInferenceState pred = null;
     int currSink;
-    boolean didLoopsRuns = false;
 
     // to save memory and execution time, we do not do recursion if there is only one child
     while (current.getChildren().size() == 1) {
       sb = new StringBuilder();
-      didLoopsRuns = true;
 
       ARGState next = getNextRelevant(current);
       curState = getSpecInfState(current);
@@ -152,10 +153,20 @@ public class SpecInferenceAlgorithm implements Algorithm {
       sb.append(" GOTO ");
       sb.append(PREFIX);
       sb.append(next.getStateId());
+
+      /*
+       * Check if the controlflow splits in the next state and if a automaton state will be inserted.
+       * If that is the case, we have to go to the state which will be inserted.
+       */
+      pred = curState;
+      current = next;
+      if (isIf(next) && (!pred.isLessOrEqual(getSpecInfState(current)))) {
+        sb.append("_x");
+      }
+
       sb.append(" ;\n\n");
 
       retList.add(sb.toString());
-      current = next;
     }
 
     sb = new StringBuilder();
@@ -193,12 +204,10 @@ public class SpecInferenceAlgorithm implements Algorithm {
     } else if (current.getChildren().size() > 1) {
 
       /*
-       * Find out if "if". If "if", insert state, so last state does not get lost.
-       * If the while loop has been entered, the state is already present.
+       * Find out if "if". If "if", see if the state is not yet added.
+       * If it isn't, add it now.
        */
-      // FIXME: I try to find out if thingy is loop start. How can it be done nicer? Maybe coverage?
-      boolean isIfStatement = !current.getEdgeToChild(current.getChildren().iterator().next()).getPredecessor().isLoopStart();
-      if (isIfStatement && !didLoopsRuns) {
+      if (isIf(current) && (pred == null || !pred.isLessOrEqual(getSpecInfState(current)))) {
         curState = getSpecInfState(current);
         currSink = curState.getAutomaton().getSink();
 
@@ -339,5 +348,12 @@ public class SpecInferenceAlgorithm implements Algorithm {
     sb.append("END AUTOMATON");
 
     return sb.toString();
+  }
+
+  private static boolean isIf(ARGState s) {
+    return s.getChildren().size() > 1 &&
+        // FIXME: I try to find out if thingy is loop start. How can it be done nicer? Maybe coverage?
+        // works though...
+        !s.getEdgeToChild(s.getChildren().iterator().next()).getPredecessor().isLoopStart();
   }
 }

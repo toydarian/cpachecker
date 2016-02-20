@@ -112,13 +112,11 @@ public class SpecInferenceAlgorithm implements Algorithm {
     try {
       PrintWriter writer = new PrintWriter(exportSpcFile.getAbsolutePath());
       String tmp = (assembleAutomatonString(assembleAutomaton(first), getNextRelevant(first).getStateId()));
-      System.out.println(tmp);
       writer.write(tmp);
       writer.close();
     } catch (FileNotFoundException pE) {
       pE.printStackTrace();
     }
-    //System.out.println(assembleAutomatonString(assembleAutomaton(first), getNextRelevant(first).getStateId()));
 
     return retVal;
   }
